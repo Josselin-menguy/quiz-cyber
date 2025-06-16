@@ -1,228 +1,237 @@
-<style>
-  #quiz-container {
-    background: #ffffff;
-    padding: 30px;
-    border-radius: 12px;
-    max-width: 800px;
-    margin: 40px auto;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    font-family: 'Segoe UI', sans-serif;
-    color: #1a1a1a;
-  }
-  h2, h3 { color: #2c3e50; }
-  .question { margin-bottom: 20px; }
-  .question p {
-    font-weight: bold;
-    font-size: 1.1em;
-  }
-  .options button {
-    display: block;
-    width: 100%;
-    text-align: left;
-    padding: 10px 15px;
-    margin: 8px 0;
-    background: #e3f2fd;
-    border: 1px solid #90caf9;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-  .options button:hover { background: #bbdefb; }
-  #next-btn {
-    background: #42a5f5;
-    color: #fff;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 8px;
-    margin-top: 20px;
-    cursor: pointer;
-  }
-  #next-btn:hover { background: #1e88e5; }
-  #result {
-    font-size: 1.1em;
-    margin-top: 30px;
-    padding: 20px;
-    border-radius: 8px;
-    background: #f0f4c3;
-    color: #33691e;
-  }
-  .hidden { display: none; }
-</style>
-
-<div id="quiz-container">
-  <h2>Quiz de sensibilisation cybersécurité</h2>
-  <div id="theme-title"></div>
-  <div id="quiz"></div>
-  <button id="next-btn" class="hidden" onclick="nextQuestion()">Question suivante</button>
-  <div id="result" class="hidden"></div>
-</div>
-
-<script>
-  const themes = [
-    {
-      title: "Thème 1 : Wi-Fi public",
-      video: "https://youtu.be/proteger-wifi",
-      questions: [
-        { q: "1. Que faut-il éviter de faire sans sécurité sur un Wi-Fi public ?", answers: [
-            { t: "Se connecter à son compte bancaire", c: true },
-            { t: "Regarder une vidéo", c: false },
-            { t: "Lire ses e-mails personnels", c: false }
-          ]},
-        { q: "2. Quel outil utiliser pour sécuriser sa connexion ?", answers: [
-            { t: "Un VPN", c: true },
-            { t: "Un antivirus", c: false },
-            { t: "Un navigateur privé", c: false }
-          ]},
-        { q: "3. Comment repérer qu’une page est sécurisée ?", answers: [
-            { t: "L’URL commence par HTTPS et un cadenas s’affiche", c: true },
-            { t: "Son fond est vert", c: false },
-            { t: "Elle s’ouvre plus vite", c: false }
-          ]},
-                { 
-        { 
-          q: "4. Pourquoi mettre à jour votre appareil avant d’utiliser un Wi-Fi public ?", 
-          answers: [
-            { t: "Pour corriger les failles et empêcher les hackers",     c: true  },
-            { t: "Pour bénéficier des dernières options et applications",  c: false },
-            { t: "Pour rendre la connexion Internet plus rapide",         c: false }
-          ]
-        },
-        { q: "5. Que faire si un SSID suspect apparaît ?", answers: [
-            { t: "Ne pas s’y connecter et alerter le support", c: true },
-            { t: "Essayer avec un autre appareil", c: false },
-            { t: "Tenter de modifier manuellement le SSID", c: false }
-          ]}
-      ]
-    },
-    {
-      title: "Thème 2 : Disques amovibles (USB)",
-      video: "https://youtu.be/securiser-usb",
-      questions: [
-        { q: "1. Que faire si vous trouvez une clé USB inconnue ?", answers: [
-            { t: "La remettre au service IT", c: true },
-            { t: "La connecter sur un poste critique", c: false },
-            { t: "La garder pour plus tard", c: false }
-          ]},
-        { q: "2. Une clé USB peut contenir :", answers: [
-            { t: "Un virus auto-exécutable", c: true },
-            { t: "Un simple document texte sûr", c: false },
-            { t: "Rien d’infectieux", c: false }
-          ]},
-        { q: "3. Avant d’ouvrir une clé USB, on peut :", answers: [
-            { t: "La scanner avec un antivirus à jour", c: true },
-            { t: "L’ouvrir directement", c: false },
-            { t: "La formater sans analyse", c: false }
-          ]},
-        { q: "4. Comment chiffrer une clé USB ?", answers: [
-            { t: "Avec BitLocker ou VeraCrypt", c: true },
-            { t: "En renommant simplement l’extension", c: false },
-            { t: "On ne peut pas chiffrer l’USB", c: false }
-          ]},
-        { q: "5. Pourquoi désactiver l’autorun sous Windows ?", answers: [
-            { t: "Pour empêcher l’exécution automatique de malwares", c: true },
-            { t: "Pour améliorer la vitesse de transfert", c: false },
-            { t: "Pour crypter la clé", c: false }
-          ]}
-      ]
-    },
-    {
-      title: "Thème 3 : Mots de passe",
-      video: "https://youtu.be/gerer-mdp",
-      questions: [
-        { q: "1. Qu’est-ce qui définit un mot de passe fort ?", answers: [
-            { t: "≥ 12 caractères, majuscules, chiffres et symboles", c: true },
-            { t: "Votre date de naissance", c: false },
-            { t: "Une suite numérique simple", c: false }
-          ]},
-        { q: "2. Faut-il réutiliser le même mot de passe ?", answers: [
-            { t: "Chaque compte doit en avoir un unique", c: true },
-            { t: "Oui, pour s’en souvenir", c: false },
-            { t: "Seulement pour les comptes non sensibles", c: false }
-          ]},
-        { q: "3. Quand changer son mot de passe ?", answers: [
-            { t: "Après toute fuite ou suspicion", c: true },
-            { t: "Tous les 5 ans", c: false },
-            { t: "Jamais", c: false }
-          ]},
-        { q: "4. Quel avantage a un gestionnaire (KeePass/Bitwarden) ?", answers: [
-            { t: "Il génère et stocke des mots de passe complexes", c: true },
-            { t: "Il accélère le PC", c: false },
-            { t: "Il supprime les malwares", c: false }
-          ]},
-        { q: "5. Que faire après la notification d’un piratage ?", answers: [
-            { t: "Changer immédiatement son mot de passe", c: true },
-            { t: "Ignorer", c: false },
-            { t: "Fermer l’onglet", c: false }
-          ]}
-      ]
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz de sensibilisation cybersécurité</title>
+  <style>
+    body {
+      background: #f4f6f8;
+      margin: 0;
+      padding: 20px;
+      font-family: 'Segoe UI', sans-serif;
     }
-  ];
-
-  let themeIndex = 0, questionIndex = 0;
-  const scores = [0, 0, 0];
-  const quizContainer = document.getElementById('quiz');
-  const themeTitle = document.getElementById('theme-title');
-  const resultContainer = document.getElementById('result');
-  const nextBtn = document.getElementById('next-btn');
-
-  function showQuestion() {
-    nextBtn.classList.add('hidden');
-    resultContainer.classList.add('hidden');
-    const theme = themes[themeIndex];
-    themeTitle.innerHTML = `<h3>${theme.title}</h3>`;
-    const q = theme.questions[questionIndex];
-    quizContainer.innerHTML = `
-      <div class="question">
-        <p>${q.q}</p>
-        <div class="options">
-          ${q.answers.map(a =>
-            `<button onclick="selectAnswer(this, ${a.c})">${a.t}</button>`
-          ).join('')}
-        </div>
-      </div>`;
-  }
-
-  function selectAnswer(btn, correct) {
-    if (correct) scores[themeIndex]++;
-    Array.from(btn.parentElement.children).forEach(b => b.disabled = true);
-    btn.style.background = correct ? "#a5d6a7" : "#ef9a9a";
-    nextBtn.classList.remove('hidden');
-  }
-
-  function nextQuestion() {
-    questionIndex++;
-    if (questionIndex < themes[themeIndex].questions.length) {
-      showQuestion();
-    } else if (themeIndex < themes.length - 1) {
-      themeIndex++;
-      questionIndex = 0;
-      showQuestion();
-    } else {
-      showSummary();
+    #quiz-container {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 12px;
+      max-width: 800px;
+      margin: 40px auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      color: #1a1a1a;
     }
-  }
+    h2, h3 { color: #2c3e50; }
+    .question { margin-bottom: 20px; }
+    .question p {
+      font-weight: bold;
+      font-size: 1.1em;
+    }
+    .options button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 10px 15px;
+      margin: 8px 0;
+      background: #e3f2fd;
+      border: 1px solid #90caf9;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .options button:hover { background: #bbdefb; }
+    #next-btn {
+      background: #42a5f5;
+      color: #fff;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      cursor: pointer;
+    }
+    #next-btn:hover { background: #1e88e5; }
+    #result {
+      font-size: 1.1em;
+      margin-top: 30px;
+      padding: 20px;
+      border-radius: 8px;
+      background: #f0f4c3;
+      color: #33691e;
+    }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <div id="quiz-container">
+    <h2>Quiz de sensibilisation cybersécurité</h2>
+    <div id="theme-title"></div>
+    <div id="quiz"></div>
+    <button id="next-btn" class="hidden" onclick="nextQuestion()">Question suivante</button>
+    <div id="result" class="hidden"></div>
+  </div>
 
-  function showSummary() {
-    themeTitle.innerHTML = `<h3>Résumé de vos scores</h3>`;
-    quizContainer.innerHTML = '';
-    nextBtn.classList.add('hidden');
-    resultContainer.innerHTML = `
-      <ul>
-        <li><strong>Wi-Fi public :</strong> ${scores[0]}/5</li>
-        <li><strong>Disques amovibles :</strong> ${scores[1]}/5</li>
-        <li><strong>Mots de passe :</strong> ${scores[2]}/5</li>
-      </ul>
-      <h4>Pour aller plus loin :</h4>
-      <ul>
-        <li>Wi-Fi public : <a href="${themes[0].video}" target="_blank">Vidéo Sécuriser son Wi-Fi</a></li>
-        <li>Disques amovibles : <a href="${themes[1].video}" target="_blank">Vidéo Sécuriser ses clés USB</a></li>
-        <li>Mots de passe : <a href="${themes[2].video}" target="_blank">Vidéo Gérer ses mots de passe</a></li>
-      </ul>
-      Merci d’avoir participé !`;
-    resultContainer.classList.remove('hidden');
-  }
+  <script>
+    const themes = [
+      {
+        title: "Thème 1 : Wi-Fi public",
+        video: "https://youtu.be/proteger-wifi",
+        questions: [
+          { q: "1. Que faut-il éviter de faire sans sécurité sur un Wi-Fi public ?", answers: [
+              { t: "Se connecter à son compte bancaire", c: true },
+              { t: "Regarder une vidéo", c: false },
+              { t: "Lire ses e-mails personnels", c: false }
+            ]},
+          { q: "2. Quel outil utiliser pour sécuriser sa connexion ?", answers: [
+              { t: "Un VPN", c: true },
+              { t: "Un antivirus", c: false },
+              { t: "Un navigateur privé", c: false }
+            ]},
+          { q: "3. Comment repérer qu’une page est sécurisée ?", answers: [
+              { t: "L’URL commence par HTTPS et un cadenas s’affiche", c: true },
+              { t: "Son fond est vert", c: false },
+              { t: "Elle s’ouvre plus vite", c: false }
+            ]},
+          { q: "4. Pourquoi mettre à jour votre appareil avant d’utiliser un Wi-Fi public ?", answers: [
+              { t: "Pour corriger les failles et empêcher les hackers", c: true },
+              { t: "Pour bénéficier des dernières options et applications", c: false },
+              { t: "Pour rendre la connexion Internet plus rapide", c: false }
+            ]},
+          { q: "5. Que faire si un SSID suspect apparaît ?", answers: [
+              { t: "Ne pas s’y connecter et alerter le support", c: true },
+              { t: "Essayer avec un autre appareil", c: false },
+              { t: "Tenter de modifier manuellement le SSID", c: false }
+            ]}
+        ]
+      },
+      {
+        title: "Thème 2 : Disques amovibles (USB)",
+        video: "https://youtu.be/securiser-usb",
+        questions: [
+          { q: "1. Que faire si vous trouvez une clé USB inconnue ?", answers: [
+              { t: "La remettre au service IT", c: true },
+              { t: "La connecter sur un poste critique", c: false },
+              { t: "La garder pour plus tard", c: false }
+            ]},
+          { q: "2. Une clé USB peut contenir :", answers: [
+              { t: "Un virus auto-exécutable", c: true },
+              { t: "Un simple document texte sûr", c: false },
+              { t: "Rien d’infectieux", c: false }
+            ]},
+          { q: "3. Avant d’ouvrir une clé USB, on peut :", answers: [
+              { t: "La scanner avec un antivirus à jour", c: true },
+              { t: "L’ouvrir directement", c: false },
+              { t: "La formater sans analyse", c: false }
+            ]},
+          { q: "4. Comment chiffrer une clé USB ?", answers: [
+              { t: "Avec BitLocker ou VeraCrypt", c: true },
+              { t: "En renommant simplement l’extension", c: false },
+              { t: "On ne peut pas chiffrer l’USB", c: false }
+            ]},
+          { q: "5. Pourquoi désactiver l’autorun sous Windows ?", answers: [
+              { t: "Pour empêcher l’exécution automatique de malwares", c: true },
+              { t: "Pour améliorer la vitesse de transfert", c: false },
+              { t: "Pour crypter la clé", c: false }
+            ]}
+        ]
+      },
+      {
+        title: "Thème 3 : Mots de passe",
+        video: "https://youtu.be/gerer-mdp",
+        questions: [
+          { q: "1. Qu’est-ce qui définit un mot de passe fort ?", answers: [
+              { t: "≥ 12 caractères, majuscules, chiffres et symboles", c: true },
+              { t: "Votre date de naissance", c: false },
+              { t: "Une suite numérique simple", c: false }
+            ]},
+          { q: "2. Faut-il réutiliser le même mot de passe ?", answers: [
+              { t: "Chaque compte doit en avoir un unique", c: true },
+              { t: "Oui, pour s’en souvenir", c: false },
+              { t: "Seulement pour les comptes non sensibles", c: false }
+            ]},
+          { q: "3. Quand changer son mot de passe ?", answers: [
+              { t: "Après toute fuite ou suspicion", c: true },
+              { t: "Tous les 5 ans", c: false },
+              { t: "Jamais", c: false }
+            ]},
+          { q: "4. Quel avantage a un gestionnaire (KeePass/Bitwarden) ?", answers: [
+              { t: "Il génère et stocke des mots de passe complexes", c: true },
+              { t: "Il accélère le PC", c: false },
+              { t: "Il supprime les malwares", c: false }
+            ]},
+          { q: "5. Que faire après la notification d’un piratage ?", answers: [
+              { t: "Changer immédiatement son mot de passe", c: true },
+              { t: "Ignorer", c: false },
+              { t: "Fermer l’onglet", c: false }
+            ]}
+        ]
+      }
+    ];
 
-  // démarrage
-  showQuestion();
-  nextBtn.addEventListener('click', nextQuestion);
-</script>
+    let themeIndex = 0, questionIndex = 0;
+    const scores = [0, 0, 0];
+    const quizContainer = document.getElementById('quiz');
+    const themeTitle = document.getElementById('theme-title');
+    const resultContainer = document.getElementById('result');
+    const nextBtn = document.getElementById('next-btn');
+
+    function showQuestion() {
+      nextBtn.classList.add('hidden');
+      resultContainer.classList.add('hidden');
+      const theme = themes[themeIndex];
+      themeTitle.innerHTML = `<h3>${theme.title}</h3>`;
+      const q = theme.questions[questionIndex];
+      quizContainer.innerHTML = `
+        <div class="question">
+          <p>${q.q}</p>
+          <div class="options">
+            ${q.answers.map(a =>
+              `<button onclick="selectAnswer(this, ${a.c})">${a.t}</button>`
+            ).join('')}
+          </div>
+        </div>`;
+    }
+
+    function selectAnswer(btn, correct) {
+      if (correct) scores[themeIndex]++;
+      Array.from(btn.parentElement.children).forEach(b => b.disabled = true);
+      btn.style.background = correct ? "#a5d6a7" : "#ef9a9a";
+      nextBtn.classList.remove('hidden');
+    }
+
+    function nextQuestion() {
+      questionIndex++;
+      if (questionIndex < themes[themeIndex].questions.length) {
+        showQuestion();
+      } else if (themeIndex < themes.length - 1) {
+        themeIndex++;
+        questionIndex = 0;
+        showQuestion();
+      } else {
+        showSummary();
+      }
+    }
+
+    function showSummary() {
+      themeTitle.innerHTML = `<h3>Résumé de vos scores</h3>`;
+      quizContainer.innerHTML = '';
+      nextBtn.classList.add('hidden');
+      resultContainer.innerHTML = `
+        <ul>
+          <li><strong>Wi-Fi public :</strong> ${scores[0]}/5</li>
+          <li><strong>Disques amovibles :</strong> ${scores[1]}/5</li>
+          <li><strong>Mots de passe :</strong> ${scores[2]}/5</li>
+        </ul>
+        <h4>Pour aller plus loin :</h4>
+        <ul>
+          <li>Wi-Fi : <a href="${themes[0].video}" target="_blank">Vidéo Sécuriser son Wi-Fi</a></li>
+          <li>Clés USB : <a href="${themes[1].video}" target="_blank">Vidéo Sécuriser ses clés USB</a></li>
+          <li>Mots de passe : <a href="${themes[2].video}" target="_blank">Vidéo Gérer ses mots de passe</a></li>
+        </ul>
+        Merci d’avoir participé !`;
+      resultContainer.classList.remove('hidden');
+    }
+
+    document.addEventListener('DOMContentLoaded', showQuestion);
+    nextBtn.addEventListener('click', nextQuestion);
+  </script>
+</body>
+</html>
